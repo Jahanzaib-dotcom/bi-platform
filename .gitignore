@@ -1,0 +1,260 @@
+# =============================================================================
+# bi-platform .gitignore
+# Python + Node.js + Docker + General
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Secrets / environment
+# -----------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+deployment/ssl/
+
+# -----------------------------------------------------------------------------
+# Python
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+.Python
+pip-wheel-metadata/
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+.virtualenv/
+
+# Poetry
+.poetry/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff / flake8 / pylint
+.ruff_cache/
+
+# Type stubs
+*.pyi
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Alembic
+# Keep alembic/versions tracked; ignore generated migration artefacts only if needed
+
+# Profiling
+*.prof
+
+# iPython
+profile_default/
+ipython_config.py
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# -----------------------------------------------------------------------------
+# Node.js / Next.js
+# -----------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+.vercel
+.next/cache/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# ESLint / Prettier
+.eslintcache
+.stylelintcache
+
+# Storybook
+storybook-static/
+.storybook/
+
+# Turbo
+.turbo/
+
+# Package lock files (keep one, ignore others)
+# Uncomment whichever you are NOT using:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# -----------------------------------------------------------------------------
+# Docker / Compose
+# -----------------------------------------------------------------------------
+# Never commit override files that contain local secrets
+docker-compose.override.yml
+docker-compose.local.yml
+
+# -----------------------------------------------------------------------------
+# Logs
+# -----------------------------------------------------------------------------
+logs/*
+!logs/.gitkeep
+*.log
+*.log.*
+npm-debug.log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# -----------------------------------------------------------------------------
+# Storage / media / uploads
+# -----------------------------------------------------------------------------
+storage/
+uploads/
+media/
+reports/generated/
+
+# -----------------------------------------------------------------------------
+# Testing
+# -----------------------------------------------------------------------------
+.tox/
+.nox/
+test-results/
+junit*.xml
+playwright-report/
+test-results/
+e2e/screenshots/
+e2e/videos/
+
+# Playwright
+/playwright/.cache/
+
+# -----------------------------------------------------------------------------
+# IDEs and editors
+# -----------------------------------------------------------------------------
+# VSCode
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+Session.vim
+.netrwhist
+
+# Emacs
+*#
+.#*
+\#*\#
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+# -----------------------------------------------------------------------------
+# Terraform / infrastructure (if used)
+# -----------------------------------------------------------------------------
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+!terraform.tfvars.example
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# -----------------------------------------------------------------------------
+# Misc
+# -----------------------------------------------------------------------------
+*.bak
+*.tmp
+*.orig
+*.patch
+*.diff
+.cache/
+.temp/
+tmp/
+temp/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+biplatform.db*
+database/*.db
+
+# Internal / Agent
+.claude/
+.opencode/
+
