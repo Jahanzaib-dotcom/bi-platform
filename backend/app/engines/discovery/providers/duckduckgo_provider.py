@@ -252,14 +252,25 @@ class DuckDuckGoProvider(BaseDiscoveryProvider):
 
     @staticmethod
     def _sync_search(query: str, max_results: int) -> List[Dict[str, Any]]:
+        import time
+        import random
         try:
             from ddgs import DDGS
-            with DDGS() as ddgs:
-                results = list(ddgs.text(query, max_results=min(max_results, 100)))
-                return results
-        except Exception as exc:
-            logger.warning("ddgs search error: %s", exc)
+        except ImportError:
             return []
+
+        max_attempts = 3
+        for attempt in range(1, max_attempts + 1):
+            try:
+                with DDGS(timeout=10) as ddgs:
+                    results = list(ddgs.text(query, max_results=min(max_results, 100)))
+                    if results:
+                        return results
+            except Exception as exc:
+                logger.warning("ddgs search attempt %d/%d for %r error: %s", attempt, max_attempts, query, exc)
+                if attempt < max_attempts:
+                    time.sleep(1.0 * attempt + random.random() * 1.5)
+        return []
 
     @staticmethod
     def _parse_result(

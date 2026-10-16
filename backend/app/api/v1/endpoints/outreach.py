@@ -345,15 +345,35 @@ async def update_smtp_config(
     existing["SMTP_PASSWORD"] = body.smtp_password
     existing["SMTP_FROM_NAME"] = body.smtp_from_name
     existing["SMTP_FROM_EMAIL"] = body.smtp_from_email or body.smtp_username
-    existing["SMTP_USE_TLS"] = "true" if body.smtp_use_tls else "false"
+    # Update environment variables in running process
+    os.environ["SMTP_HOST"] = body.smtp_host
+    os.environ["SMTP_PORT"] = str(body.smtp_port)
+    os.environ["SMTP_USERNAME"] = body.smtp_username
+    os.environ["SMTP_PASSWORD"] = body.smtp_password
+    os.environ["SMTP_FROM_NAME"] = body.smtp_from_name
+    os.environ["SMTP_FROM_EMAIL"] = body.smtp_from_email or body.smtp_username
+    os.environ["SMTP_USE_TLS"] = "true" if body.smtp_use_tls else "false"
 
-    env_path.write_text("\n".join(f"{k}={v}" for k, v in existing.items()) + "\n")
+    # Update in-memory settings singleton directly
+    try:
+        from app.core.config import settings, load_settings
+        settings.SMTP_HOST = body.smtp_host
+        settings.SMTP_PORT = body.smtp_port
+        settings.SMTP_USERNAME = body.smtp_username
+        settings.SMTP_PASSWORD = body.smtp_password
+        settings.SMTP_FROM_NAME = body.smtp_from_name
+        settings.SMTP_FROM_EMAIL = body.smtp_from_email or body.smtp_username
+        settings.SMTP_USE_TLS = body.smtp_use_tls
+        load_settings.cache_clear()
+    except Exception:
+        pass
 
-    # Reload settings singleton
-    from app.core.config import load_settings
-    load_settings.cache_clear()
+    try:
+        env_path.write_text("\n".join(f"{k}={v}" for k, v in existing.items()) + "\n")
+    except OSError as err:
+        logger.warning("Could not persist SMTP config to .env (read-only filesystem): %s", err)
 
-    return {"status": "saved", "message": "SMTP configuration saved. Restart the server to apply."}
+    return {"status": "saved", "message": "SMTP configuration saved and activated immediately."}
 
 
 @router.post("/smtp-test")

@@ -33,13 +33,11 @@ def _resolve_url(url: str) -> str:
 
 _resolved_url = _resolve_url(DATABASE_URL)
 
-# ---------------------------------------------------------------------------
-# Engine
-# ---------------------------------------------------------------------------
+from sqlalchemy import event
 
 _connect_args: dict = {}
 if "sqlite" in _resolved_url:
-    _connect_args = {"check_same_thread": False}
+    _connect_args = {"check_same_thread": False, "timeout": 30.0}
 
 engine: AsyncEngine = create_async_engine(
     _resolved_url,
@@ -47,6 +45,19 @@ engine: AsyncEngine = create_async_engine(
     pool_pre_ping=True,
     connect_args=_connect_args,
 )
+
+if "sqlite" in _resolved_url:
+    @event.listens_for(engine.sync_engine, "connect")
+    def _set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.execute("PRAGMA busy_timeout=15000")
+        except Exception:
+            pass
+        finally:
+            cursor.close()
 
 # ---------------------------------------------------------------------------
 # Session factory

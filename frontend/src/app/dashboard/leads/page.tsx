@@ -1227,9 +1227,11 @@ export default function LeadsPage() {
 
       {/* ── Leads Table ─────────────────────────────────────────────────── */}
       <GlassCard padding="none">
-        {/* Table Header */}
-        <div
-          className="grid grid-cols-12 gap-2 px-6 py-3 border-b border-white/5"
+        <div className="overflow-x-auto">
+          <div className="min-w-[950px]">
+            {/* Table Header */}
+            <div
+              className="grid grid-cols-12 gap-2 px-6 py-3 border-b border-white/5"
           style={{ background: 'rgba(0,0,0,0.2)' }}
         >
           {['Rank', 'Business', 'Website', 'Scores', 'Opp. Score', 'Revenue', 'Opportunities', 'Actions'].map((h) => (
@@ -1386,6 +1388,7 @@ export default function LeadsPage() {
               </React.Fragment>
             ))
           )}
+          </div>
         </div>
       </GlassCard>
     </div>

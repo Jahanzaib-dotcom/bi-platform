@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { crmApi, type DealRaw, type PipelineRaw } from '@/lib/api';
 import {
   Briefcase,
@@ -44,6 +45,7 @@ function formatCurrency(val: number): string {
 export default function CRMPage() {
   const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
   const [view, setView] = useState<'kanban' | 'list'>('kanban');
+  const [dealToDelete, setDealToDelete] = useState<DealRaw | null>(null);
   const queryClient = useQueryClient();
 
   const { data: pipelines = [], isLoading: pipelinesLoading } = useQuery<PipelineRaw[]>({
@@ -81,7 +83,15 @@ export default function CRMPage() {
 
   const deleteDealMutation = useMutation({
     mutationFn: crmApi.deleteDeal,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crm-deals'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['crm-deals'] });
+      queryClient.invalidateQueries({ queryKey: ['crm-pipeline-stats'] });
+      toast.success('Deal removed from pipeline');
+      setDealToDelete(null);
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(err?.message || 'Failed to delete deal');
+    },
   });
 
   const dealsByStage = STAGES.reduce<Record<string, DealRaw[]>>((acc, stage) => {
@@ -183,10 +193,11 @@ export default function CRMPage() {
                     <div className="flex items-start justify-between mb-2">
                       <p className="text-sm font-medium text-white">{deal.title}</p>
                       <button
-                        onClick={() => deleteDealMutation.mutate(deal.id)}
-                        className="text-slate-500 hover:text-red-400 transition-colors ml-2 flex-shrink-0"
+                        onClick={() => setDealToDelete(deal)}
+                        className="text-slate-500 hover:text-red-400 transition-colors ml-2 flex-shrink-0 p-1 rounded hover:bg-white/5 cursor-pointer"
+                        title="Delete Deal"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                     <p className="text-lg font-bold text-emerald-400">{formatCurrency(deal.value)}</p>
@@ -215,7 +226,7 @@ export default function CRMPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  {['Title', 'Stage', 'Value', 'Probability', 'Created'].map((h) => (
+                  {['Title', 'Stage', 'Value', 'Probability', 'Created', 'Actions'].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                       {h}
                     </th>
@@ -225,7 +236,7 @@ export default function CRMPage() {
               <tbody>
                 {deals.map((deal) => (
                   <tr key={deal.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
-                    <td className="px-4 py-3 text-white">{deal.title}</td>
+                    <td className="px-4 py-3 text-white font-medium">{deal.title}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full border font-medium capitalize ${STAGE_COLORS[deal.stage] || STAGE_COLORS.lead}`}>
                         {deal.stage.replace('_', ' ')}
@@ -234,11 +245,20 @@ export default function CRMPage() {
                     <td className="px-4 py-3 text-emerald-400 font-semibold">{formatCurrency(deal.value)}</td>
                     <td className="px-4 py-3 text-slate-300">{deal.probability}%</td>
                     <td className="px-4 py-3 text-slate-500">{new Date(deal.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => setDealToDelete(deal)}
+                        className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                        title="Delete Deal"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {deals.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500">No deals in this pipeline</td>
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">No deals in this pipeline</td>
                   </tr>
                 )}
               </tbody>
@@ -246,6 +266,58 @@ export default function CRMPage() {
           </div>
         </GlassCard>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {dealToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md rounded-2xl p-6 border border-white/10 shadow-2xl"
+              style={{ background: 'rgba(14,14,32,0.98)', backdropFilter: 'blur(20px)' }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Delete Deal</h3>
+                  <p className="text-xs text-slate-400">Are you sure you want to delete this deal?</p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 mb-5 space-y-1">
+                <p className="text-sm font-semibold text-white">{dealToDelete.title}</p>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-emerald-400 font-bold">{formatCurrency(dealToDelete.value)}</span>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-slate-400 capitalize">{dealToDelete.stage.replace('_', ' ')}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDealToDelete(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteDealMutation.isPending}
+                  onClick={() => deleteDealMutation.mutate(dealToDelete.id)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-500 transition-colors disabled:opacity-50 cursor-pointer shadow-lg shadow-red-600/30"
+                >
+                  {deleteDealMutation.isPending ? 'Deleting...' : 'Delete Deal'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

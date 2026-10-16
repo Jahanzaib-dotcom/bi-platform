@@ -32,11 +32,17 @@ export function useAuth(): UseAuthReturn {
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
-    onSuccess: ({ access_token, refresh_token }) => {
+    onSuccess: async ({ access_token, refresh_token }) => {
       setTokens(access_token, refresh_token);
-      setAuth({ email: '' } as User, access_token, refresh_token);
+      let me: User;
+      try {
+        me = await authApi.me();
+      } catch {
+        me = { email: '' } as User;
+      }
+      setAuth(me, access_token, refresh_token);
       toast.success('Welcome back!');
-      setTimeout(() => { window.location.href = '/dashboard'; }, 300);
+      setTimeout(() => { window.location.href = '/dashboard'; }, 200);
     },
     onError: (error: { message?: string }) => {
       toast.error(error.message ?? 'Login failed. Please check your credentials.');

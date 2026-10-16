@@ -219,11 +219,15 @@ class FreelanceProvider(BaseDiscoveryProvider):
                 f'site:upwork.com/jobs/ "{query}"',
             ]
 
-            with DDGS() as ddgs:
+            with DDGS(timeout=10) as ddgs:
                 for sq in search_queries:
                     if len(results) >= max_results:
                         break
-                    raw = list(ddgs.text(sq, max_results=min(25, max_results)))
+                    try:
+                        raw = list(ddgs.text(sq, max_results=min(25, max_results)))
+                    except Exception as sq_err:
+                        logger.debug("Upwork query %r error: %s", sq, sq_err)
+                        continue
                     for r in raw:
                         href = r.get("href") or r.get("url") or ""
                         parsed = urlparse(href)
@@ -295,7 +299,7 @@ class FreelanceProvider(BaseDiscoveryProvider):
             from ddgs import DDGS
 
             search_query = f'site:fiverr.com "looking for" "{query}"'
-            with DDGS() as ddgs:
+            with DDGS(timeout=10) as ddgs:
                 raw = list(ddgs.text(search_query, max_results=min(20, max_results)))
                 for r in raw:
                     href = r.get("href") or ""
