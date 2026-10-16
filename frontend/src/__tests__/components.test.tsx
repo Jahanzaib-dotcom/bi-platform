@@ -37,16 +37,17 @@ jest.mock('framer-motion', () => {
   };
 });
 
+interface CountUpProps {
+  end: number;
+  decimals?: number;
+  separator?: string;
+  prefix?: string;
+  suffix?: string;
+}
+
 // react-countup — just render the end value as plain text
 jest.mock('react-countup', () => {
   const React = require('react');
-  interface CountUpProps {
-    end: number;
-    decimals?: number;
-    separator?: string;
-    prefix?: string;
-    suffix?: string;
-  }
   const CountUp = ({ end, decimals = 0 }: CountUpProps) => (
     <span data-testid="countup-value">{end.toFixed(decimals)}</span>
   );

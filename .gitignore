@@ -58,6 +58,8 @@ env/
 .coverage
 .coverage.*
 htmlcov/
+coverage/
+frontend/coverage/
 coverage.xml
 *.cover
 .hypothesis/

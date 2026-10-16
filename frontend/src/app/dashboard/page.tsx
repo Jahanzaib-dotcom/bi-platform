@@ -45,7 +45,6 @@ import { analyticsApi, businessesApi, auditsApi } from '@/lib/api';
 import type { AnalyticsDashboardRaw, IndustryBreakdownRaw, GeographyItemRaw, TrendRaw, ScoresDistributionRaw, BusinessRaw, AuditReportRaw } from '@/lib/api';
 import GlassCard from '@/components/ui/GlassCard';
 import ProgressBar from '@/components/ui/ProgressBar';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
 
 // ─── constants ────────────────────────────────────────────────────────────────
 
@@ -742,7 +741,6 @@ export default function DashboardPage() {
   const loading = kpisLoading;
 
   return (
-    <DashboardLayout>
       <motion.div
         initial="hidden"
         animate="show"
@@ -954,6 +952,5 @@ export default function DashboardPage() {
           </p>
         </motion.div>
       </motion.div>
-    </DashboardLayout>
   );
 }

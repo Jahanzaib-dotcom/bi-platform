@@ -25,7 +25,6 @@ import {
   X,
 } from 'lucide-react';
 
-import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { freelanceApi, FreelanceJobRaw } from '@/lib/api';
 
 const QUICK_NICHES = [
@@ -111,7 +110,6 @@ export default function FreelancePage() {
   const jobsList = liveData?.items ?? [];
 
   return (
-    <DashboardLayout>
       <div className="min-h-screen bg-[#070714] text-white p-6 lg:p-8 space-y-8">
         {/* ── Top Header Banner ── */}
         <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-r from-indigo-950/60 via-purple-950/40 to-slate-950/80 p-6 lg:p-8 backdrop-blur-xl shadow-2xl">
@@ -475,6 +473,5 @@ export default function FreelancePage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }
